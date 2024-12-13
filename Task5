@@ -1,0 +1,80 @@
+import SwiftUI
+
+struct ContentView: View {
+    
+    @State private var currentPosition: CGSize = .zero
+    @GestureState private var gestureOffset: CGSize = .zero
+    
+    var body: some View {
+        ZStack {
+            GeometryReader { geometry in
+                VStack(spacing: 0) {
+                    Rectangle()
+                        .fill(.white)
+                        .frame(height: geometry.size.height / 4)
+                    Rectangle()
+                        .fill(.pink)
+                        .frame(height: geometry.size.height / 4)
+                    Rectangle()
+                        .fill(.yellow)
+                        .frame(height: geometry.size.height / 4)
+                    Rectangle()
+                        .fill(.black)
+                        .frame(height: geometry.size.height / 4)
+                }
+
+                let squareHeight: CGFloat = 100.0
+                let quarterHeight = geometry.size.height / 4
+                let squareTop = gestureOffset.height + currentPosition.height
+                let squareBottom = squareTop + squareHeight
+
+                Rectangle()
+                    .fill(Color.clear)
+                    .background(
+                        VStack(spacing: 0) {
+                            if squareBottom > 0 && squareTop < quarterHeight { // Первая четверть
+                                Rectangle()
+                                    .fill(Color.black)
+                                    .frame(height: max(0, quarterHeight - squareTop))
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .frame(height: max(0, squareBottom - quarterHeight))
+                            } else if squareBottom > quarterHeight && squareTop < 2 * quarterHeight { // Вторая четверть
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .frame(height: max(0, 2 * quarterHeight - squareTop))
+                                Rectangle()
+                                    .fill(Color.black)
+                                    .frame(height: max(0, squareBottom - 2 * quarterHeight))
+                            } else if squareBottom > 2 * quarterHeight && squareTop < 3 * quarterHeight { // Третья четверть
+                                Rectangle()
+                                    .fill(Color.black)
+                                    .frame(height: max(0, 3 * quarterHeight - squareTop))
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .frame(height: max(0, squareBottom - 3 * quarterHeight))
+                            } else if squareBottom > 3 * quarterHeight && squareTop < 4 * quarterHeight { // Четвертая четверть
+                                Rectangle()
+                                    .fill(Color.white)
+                                    .frame(height: max(0, 4 * quarterHeight - squareTop))
+                            }
+                        }
+                    )
+                    .frame(width: squareHeight, height: squareHeight)
+                    .cornerRadius(10.0)
+                    .offset(x: gestureOffset.width + currentPosition.width, y: gestureOffset.height + currentPosition.height)
+                    .gesture(
+                        DragGesture()
+                            .updating($gestureOffset) { value, state, _ in
+                                state = value.translation
+                            }
+                            .onEnded { value in
+                                self.currentPosition.width += value.translation.width
+                                self.currentPosition.height += value.translation.height
+                            }
+                    )
+            }
+        }
+        .ignoresSafeArea()
+    }
+}
